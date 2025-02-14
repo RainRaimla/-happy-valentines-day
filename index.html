@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Valentine's Hearts</title>
+    <style>
+        canvas {
+            background: #ffe6f2;
+            display: block;
+            margin: 0 auto;
+        }
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="myCanvas"></canvas>
+
+    <script>
+        const canvas = document.getElementById('myCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Määra canvas suurus akna suuruseks
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        // Südamede massiiv
+        const hearts = [];
+        const heartCount = 15;
+        const colors = ['#FF69B4', '#FF1493', '#FF0080', '#FF0066', '#FF004D'];
+
+        // Süda klass
+        class Heart {
+            constructor() {
+                this.reset();
+            }
+
+            reset() {
+                this.x = Math.random() * canvas.width;
+                this.y = -50;
+                this.size = Math.random() * 20 + 10;
+                this.speed = Math.random() * 3 + 2;
+                this.velocityY = this.speed;
+                this.velocityX = (Math.random() - 0.5) * 4;
+                this.color = colors[Math.floor(Math.random() * colors.length)];
+            }
+
+            update() {
+                this.y += this.velocityY;
+                this.x += this.velocityX;
+
+                // Põrge külgede vastu
+                if (this.x < 0 || this.x > canvas.width) {
+                    this.velocityX *= -1;
+                }
+
+                // Reset kui alla jõuab
+                if (this.y > canvas.height + 50) {
+                    this.reset();
+                }
+            }
+
+            draw() {
+                drawHeart(this.x, this.y, this.size, this.color);
+            }
+        }
+
+        // Süda joonistamise funktsioon
+        function drawHeart(x, y, size, color) {
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.fillStyle = color;
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.bezierCurveTo(size/2, -size/2, size, 0, 0, size);
+            ctx.bezierCurveTo(-size, 0, -size/2, -size/2, 0, 0);
+            ctx.fill();
+            ctx.restore();
+        }
+
+        // Teksti joonistamine
+        function drawText() {
+            ctx.fillStyle = '#FF3366';
+            ctx.font = '40px Arial';
+            ctx.textAlign = 'center';
+            ctx.shadowColor = 'rgba(0,0,0,0.3)';
+            ctx.shadowBlur = 5;
+            ctx.fillText('Happy Valentine\'s Day', canvas.width/2, 60);
+        }
+
+        // Initsialiseeri südamed
+        for (let i = 0; i < heartCount; i++) {
+            hearts.push(new Heart());
+            hearts[i].y = Math.random() * canvas.height;
+        }
+
+        // Animatsioonitsükkel
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            drawText();
+            
+            hearts.forEach(heart => {
+                heart.update();
+                heart.draw();
+            });
+
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+    </script>
+</body>
+</html>
